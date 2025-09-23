@@ -32,6 +32,8 @@ docker run --rm -p 6901:6901 -e VNC_PW=password -e KASM_NO_VETH=1 yusiwen/kasm-c
 
 The desktop environemnt is OpenBox, use mouse right button to call out the system menu.
 
+![alt text](screenshot.png)
+
 ### systemd Compatible Image
 
 `yusiwen/kasm-core-minimal:1.3.4-systemd` uses systemd as init process in container.

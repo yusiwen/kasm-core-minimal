@@ -1,0 +1,16 @@
+[Unit]
+Description=KasmVNC Service
+Wants=network.target
+After=network.target network-online.target
+
+[Service]
+Type=simple
+User=kasm-user
+PassEnvironment=DISPLAY DISTRO GOMP_SPINCOUNT INST_SCRIPTS KASMVNC_AUTO_RECOVER KASM_VNC_PATH MAX_FRAME_RATE NO_VNC_PORT OMP_WAIT_POLICY STARTUPDIR START_DE TERM VNC_COL_DEPTH VNCOPTIONS VNC_PORT VNC_PW VNC_RESOLUTION VNC_VIEW_ONLY_PW TZ KASM_NO_VETH KASM_NO_AUTH KASM_VNC_SSL BYPASS_ROUTES
+WorkingDirectory=/dockerstartup
+ExecStart=/dockerstartup/kasm_default_profile.sh /dockerstartup/vnc_startup.sh /dockerstartup/kasm_startup.sh
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

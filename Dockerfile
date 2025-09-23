@@ -1,0 +1,154 @@
+#### Build Stage ####
+ARG BASE_IMAGE="ubuntu:24.04"
+FROM $BASE_IMAGE AS base_layer
+
+### Environment config
+ARG BG_IMG=bg_kasm.png
+ARG EXTRA_SH=noop.sh
+ARG DISTRO=ubuntu
+ARG LANG='en_US.UTF-8'
+ARG LANGUAGE='en_US:en'
+ARG LC_ALL='en_US.UTF-8'
+ARG TZ='Etc/UTC'
+ENV DEBIAN_FRONTEND=noninteractive \
+    DISTRO=$DISTRO \
+    HOME=/home/kasm-default-profile \
+    INST_SCRIPTS=/dockerstartup/install \
+    KASM_VNC_PATH=/usr/share/kasmvnc \
+    LANG=$LANG \
+    LANGUAGE=$LANGUAGE \
+    LC_ALL=$LC_ALL \
+    TZ=$TZ \
+    STARTUPDIR=/dockerstartup
+
+### Home setup
+WORKDIR $HOME
+RUN mkdir -p $HOME/Desktop
+
+### Setup package rules
+COPY ./src/ubuntu/install/package_rules $INST_SCRIPTS/package_rules/
+RUN bash $INST_SCRIPTS/package_rules/package_rules.sh && rm -rf $INST_SCRIPTS/package_rules/
+
+### Install common tools
+COPY ./src/ubuntu/install/tools $INST_SCRIPTS/tools/
+RUN bash $INST_SCRIPTS/tools/install_tools.sh && rm -rf $INST_SCRIPTS/tools/
+
+### Copy over the maximization script to our startup dir for use by app images.
+COPY ./src/ubuntu/install/maximize_script $STARTUPDIR/
+
+### Install openbox UI
+COPY ./src/ubuntu/install/openbox $INST_SCRIPTS/openbox/
+RUN bash $INST_SCRIPTS/openbox/install_openbox.sh && rm -rf $INST_SCRIPTS/openbox/
+
+### Install kasm_vnc dependencies and binaries
+COPY ./src/ubuntu/install/kasm_vnc $INST_SCRIPTS/kasm_vnc/
+RUN bash $INST_SCRIPTS/kasm_vnc/install_kasm_vnc.sh && rm -rf $INST_SCRIPTS/kasm_vnc/
+COPY ./src/common/install/kasm_vnc/kasmvnc.yaml /etc/kasmvnc/
+
+### Install Kasm Profile Sync
+COPY ./src/ubuntu/install/profile_sync $INST_SCRIPTS/profile_sync/
+RUN bash $INST_SCRIPTS/profile_sync/install_profile_sync.sh
+
+### Install Kasm Upload Server
+COPY ./src/ubuntu/install/kasm_upload_server $INST_SCRIPTS/kasm_upload_server/
+RUN bash $INST_SCRIPTS/kasm_upload_server/install_kasm_upload_server.sh  && rm -rf $INST_SCRIPTS/kasm_upload_server/
+
+### configure startup
+COPY ./src/common/scripts/kasm_hook_scripts $STARTUPDIR
+ADD ./src/common/startup_scripts $STARTUPDIR
+RUN bash $STARTUPDIR/set_user_permission.sh $STARTUPDIR $HOME && \
+    echo 'source $STARTUPDIR/generate_container_user' >> $HOME/.bashrc
+
+### Create user and home directory for base images that don't already define it
+RUN (groupadd -g 1000 kasm-user \
+    && useradd -M -u 1000 -g 1000 kasm-user \
+    && usermod -a -G kasm-user kasm-user) ; exit 0
+ENV HOME=/home/kasm-user
+WORKDIR $HOME
+RUN mkdir -p $HOME && chown -R 1000:0 $HOME
+
+### FIX PERMISSIONS ## Objective is to change the owner of non-home paths to root, remove write permissions, and set execute where required
+# these files are created on container first exec, by the default user, so we have to create them since default will not have write perm
+RUN touch $STARTUPDIR/wm.log \
+    && touch $STARTUPDIR/window_manager_startup.log \
+    && touch $STARTUPDIR/vnc_startup.log \
+    && touch $STARTUPDIR/no_vnc_startup.log \
+    && chown -R root:root $STARTUPDIR \
+    && find $STARTUPDIR -type d -exec chmod 755 {} \; \
+    && find $STARTUPDIR -type f -exec chmod 644 {} \; \
+    && find $STARTUPDIR -type f -iname "*.sh" -exec chmod 755 {} \; \
+    && find $STARTUPDIR -type f -iname "*.py" -exec chmod 755 {} \; \
+    && find $STARTUPDIR -type f -iname "*.rb" -exec chmod 755 {} \; \
+    && find $STARTUPDIR -type f -iname "*.pl" -exec chmod 755 {} \; \
+    && find $STARTUPDIR -type f -iname "*.log" -exec chmod 666 {} \; \
+    && chmod 755 $STARTUPDIR/upload_server/kasm_upload_server \
+    && chmod 755 $STARTUPDIR/generate_container_user \
+    && rm -rf $STARTUPDIR/install \
+    && mkdir -p $STARTUPDIR/kasmrx/Downloads \
+    && chown 1000:1000 $STARTUPDIR/kasmrx/Downloads \
+    && chown -R root:root /usr/local/bin \
+    && rm -Rf /home/kasm-default-profile/.launchpadlib
+
+### Cleanup job
+COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
+RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
+
+#### Runtime Stage ####
+FROM scratch
+COPY --from=base_layer / /
+
+### Labels
+LABEL "org.opencontainers.image.authors"='Kasm Tech "info@kasmweb.com"'
+LABEL "com.kasmweb.image"="true"
+
+### Environment config
+ARG DISTRO=ubuntu
+ARG EXTRA_SH=noop.sh
+ARG LANG='en_US.UTF-8'
+ARG LANGUAGE='en_US:en'
+ARG LC_ALL='en_US.UTF-8'
+ARG START_XFCE4=1
+ARG TZ='Etc/UTC'
+ENV DEBIAN_FRONTEND=noninteractive \
+    DISPLAY=:1 \
+    DISTRO=$DISTRO \
+    GOMP_SPINCOUNT=0 \
+    HOME=/home/kasm-user \
+    INST_SCRIPTS=/dockerstartup/install \
+    KASMVNC_AUTO_RECOVER=true \
+    KASM_VNC_PATH=/usr/share/kasmvnc \
+    LANG=$LANG \
+    LANGUAGE=$LANGUAGE \
+    LC_ALL=$LC_ALL \
+    LD_LIBRARY_PATH=/usr/local/lib/:/usr/lib/x86_64-linux-gnu \
+    MAX_FRAME_RATE=24 \
+    NO_VNC_PORT=6901 \
+    OMP_WAIT_POLICY=PASSIVE \
+    SHELL=/bin/bash \
+    STARTUPDIR=/dockerstartup \
+    START_DE=openbox \
+    TERM=xterm \
+    VNC_COL_DEPTH=24 \
+    VNCOPTIONS="-PreferBandwidth -DynamicQualityMin=4 -DynamicQualityMax=7 -DLP_ClipDelay=0" \
+    VNC_PORT=5901 \
+    VNC_PORT=5901 \
+    VNC_PW=vncpassword \
+    VNC_RESOLUTION=1280x1024 \
+    VNC_RESOLUTION=1280x720 \
+    VNC_VIEW_ONLY_PW=vncviewonlypassword \
+    KASM_NO_VETH=0 \
+    KASM_VNC_SSL=1 \
+    TZ=$TZ
+
+### Ports and user
+EXPOSE $VNC_PORT \
+        $NO_VNC_PORT \
+        $UPLOAD_PORT
+WORKDIR $HOME
+USER 1000
+
+COPY ./src/ubuntu/defaults/openbox/autostart .config/openbox/
+COPY ./src/ubuntu/defaults/openbox/menu.xml .config/openbox/
+
+ENTRYPOINT ["/dockerstartup/kasm_default_profile.sh", "/dockerstartup/vnc_startup.sh", "/dockerstartup/kasm_startup.sh"]
+CMD ["--wait"]

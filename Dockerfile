@@ -131,7 +131,6 @@ ENV DEBIAN_FRONTEND=noninteractive \
     VNC_COL_DEPTH=24 \
     VNCOPTIONS="-PreferBandwidth -DynamicQualityMin=4 -DynamicQualityMax=7 -DLP_ClipDelay=0" \
     VNC_PORT=5901 \
-    VNC_PORT=5901 \
     VNC_PW=vncpassword \
     VNC_RESOLUTION=1280x1024 \
     VNC_RESOLUTION=1280x720 \

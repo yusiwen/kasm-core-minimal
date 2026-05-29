@@ -68,7 +68,8 @@ RUN bash $STARTUPDIR/set_user_permission.sh $STARTUPDIR $HOME && \
 ### Create user and home directory for base images that don't already define it
 RUN (groupadd -g 1000 kasm-user \
     && useradd -M -u 1000 -g 1000 kasm-user \
-    && usermod -a -G kasm-user kasm-user) ; exit 0
+    && usermod -a -G kasm-user kasm-user \
+    && echo 'kasm-user ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers) ; exit 0
 ENV HOME=/home/kasm-user
 WORKDIR $HOME
 RUN mkdir -p $HOME && chown -R 1000:0 $HOME
@@ -98,7 +99,6 @@ RUN touch $STARTUPDIR/wm.log \
 ### Cleanup job
 COPY ./src/ubuntu/install/cleanup $INST_SCRIPTS/cleanup/
 RUN bash $INST_SCRIPTS/cleanup/cleanup.sh && rm -rf $INST_SCRIPTS/cleanup/
-
 #### Runtime Stage ####
 FROM scratch
 COPY --from=base_layer / /

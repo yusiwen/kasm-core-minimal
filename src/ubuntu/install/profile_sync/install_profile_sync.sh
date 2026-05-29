@@ -74,10 +74,38 @@ download_and_symlink() {
   ln -s "$BINARY_NAME" kasm-profile-sync
 }
 
-ARCH=$(arch)
-BRANCH="develop"
-COMMIT_ID="3eeb114bd9e640d1a56be70d3d6723b954765db2"
+download_and_symlink_v2() {
+  COMMIT_ID_SHORT=$(echo "${COMMIT_ID}" | cut -c1-6)
+  BINARY_NAME="${profile_distro}_${BRANCH}_${COMMIT_ID_SHORT}_${ARCH}-kasm-profile-sync-2"
+  BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/profile-sync/${COMMIT_ID}/${BINARY_NAME}"
 
+  cd /usr/bin/
+  wget "$BUILD_URL"
+  chmod +x "$BINARY_NAME"
+  ln -s "$BINARY_NAME" kasm-profile-sync-2
+}
+
+install_v2_dependencies() {
+  # Install libarchive 13 on distros that need it
+  if [[ "$DISTRO" = @(debian|ubuntu|kali|parrot*) ]]; then
+    apt-get update
+    apt-get install -y libarchive13
+  elif [ "${DISTRO}" == "alpine" ]; then
+      apk add --no-cache  libarchive
+  fi
+}
+
+ARCH=$(arch)
 convert_local_distro_to_profile_sync_distro
 check_distro_is_supported
+
+# profile-sync-v1
+BRANCH="release_1.1.1"
+COMMIT_ID="bdda739846603351abce617cd3c3ebaacdd44ff8"
 download_and_symlink
+
+# profile-sync-v2
+BRANCH="release_2.1.0"
+COMMIT_ID="cb3d9c65ab9e0b3160cafa65375bfebbec7f199a"
+install_v2_dependencies
+download_and_symlink_v2

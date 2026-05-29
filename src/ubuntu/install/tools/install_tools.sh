@@ -28,7 +28,12 @@ else
   # On Ubuntu, this is a no-op
   dpkg-reconfigure --frontend noninteractive tzdata
 
-  apt-get install -y sudo iproute2 iptables vim wget net-tools locales bzip2 wmctrl software-properties-common mesa-utils bc vulkan-tools
+  # software-properties is removed from kali-rolling and debian trixie
+  if grep -q "kali-rolling" /etc/os-release || grep -q "trixie" /etc/os-release || grep -qi "parrot" /etc/os-release; then
+    apt-get install -y sudo iproute2 iptables vim wget net-tools locales bzip2 wmctrl mesa-utils bc vulkan-tools
+  else
+    apt-get install -y sudo iproute2 iptables vim wget net-tools locales bzip2 wmctrl software-properties-common mesa-utils bc vulkan-tools
+  fi
 
   echo "generate locales for en_US.UTF-8"
   locale-gen en_US.UTF-8

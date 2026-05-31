@@ -43,3 +43,18 @@ target "kasm-core-minimal_trixie" {
   no-cache = true
   platforms = ["linux/amd64", "linux/arm64"]
 }
+
+target "kasm-core-minimal_trixie-systemd" {
+  context = "."
+  dockerfile = "Dockerfile.systemd"
+  tags = ["yusiwen/kasm-core-minimal:1.4.1-trixie-systemd"]
+  args = {
+    COMMIT_ID = "0a64d3381cf2ebfb53685c9c9c804e8a327bf0a3"
+    BRANCH = "master"
+    KASMVNC_VER = "1.4.1"
+    BASE_IMAGE = "debian:trixie-slim"
+    DISTRO = "debian"
+  }
+  no-cache = true
+  platforms = ["linux/amd64", "linux/arm64"]
+}

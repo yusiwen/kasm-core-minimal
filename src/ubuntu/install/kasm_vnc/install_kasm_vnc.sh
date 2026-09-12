@@ -17,51 +17,51 @@ if [[ "${BRANCH}" == "release" ]]; then
 fi
 
 if [[ "${DISTRO}" == "alpine" ]]; then
-    if grep -q v3.21 /etc/os-release; then
-        if [[ "$(arch)" =~ ^x86_64$ ]]; then
+    if grep -q v3.23 /etc/os-release; then
+        if [[ "$(arch)" =~ ^x86_64$ ]] ; then
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_323_${KASM_VER_NAME_PART}_x86_64.apk"
+        else
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_323_${KASM_VER_NAME_PART}_aarch64.apk"
+        fi
+    elif grep -q v3.22 /etc/os-release; then
+        if [[ "$(arch)" =~ ^x86_64$ ]] ; then
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_322_${KASM_VER_NAME_PART}_x86_64.apk"
+        else
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_322_${KASM_VER_NAME_PART}_aarch64.apk"
+        fi
+    elif grep -q v3.21 /etc/os-release; then
+        if [[ "$(arch)" =~ ^x86_64$ ]] ; then
             BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_321_${KASM_VER_NAME_PART}_x86_64.apk"
         else
             BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_321_${KASM_VER_NAME_PART}_aarch64.apk"
-        fi
-    elif grep -q v3.20 /etc/os-release; then
-        if [[ "$(arch)" =~ ^x86_64$ ]]; then
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_320_${KASM_VER_NAME_PART}_x86_64.apk"
-        else
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_320_${KASM_VER_NAME_PART}_aarch64.apk"
-        fi
-    elif grep -q v3.19 /etc/os-release; then
-        if [[ "$(arch)" =~ ^x86_64$ ]]; then
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_319_${KASM_VER_NAME_PART}_x86_64.apk"
-        else
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_alpine_319_${KASM_VER_NAME_PART}_aarch64.apk"
         fi
     fi
 elif [[ "${DISTRO}" = @(debian|parrotos7) ]] ; then
     if grep -q trixie /etc/os-release || grep -qi echo /etc/os-release; then
         if [[ "$(arch)" =~ ^x86_64$ ]] ; then
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_trixie_${KASM_VER_NAME_PART}_amd64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debian_trixie_${KASM_VER_NAME_PART}_amd64.deb"
         else
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_trixie_${KASM_VER_NAME_PART}_arm64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debian_trixie_${KASM_VER_NAME_PART}_arm64.deb"
         fi
     elif grep -q bookworm /etc/os-release || grep -q lory /etc/os-release; then
         if [[ "$(arch)" =~ ^x86_64$ ]] ; then
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_bookworm_${KASM_VER_NAME_PART}_amd64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debian_bookworm_${KASM_VER_NAME_PART}_amd64.deb"
         else
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_bookworm_${KASM_VER_NAME_PART}_arm64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debian_bookworm_${KASM_VER_NAME_PART}_arm64.deb"
         fi
     else
         if [[ "$(arch)" =~ ^x86_64$ ]] ; then
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_bullseye_${KASM_VER_NAME_PART}_amd64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debian_bullseye_${KASM_VER_NAME_PART}_amd64.deb"
         else
-            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_bullseye_${KASM_VER_NAME_PART}_arm64.deb"
+            BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_debain_bullseye_${KASM_VER_NAME_PART}_arm64.deb"
         fi
     fi
 else
     UBUNTU_CODENAME=$(grep -Po -m 1 "(?<=_CODENAME=)\w+" /etc/os-release)
     if [[ "${BUILD_ARCH}" =~ ^aarch64$ ]]; then
-        BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_${UBUNTU_CODENAME}_${KASM_VER_NAME_PART}_arm64.deb"
+        BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_ubuntu_${UBUNTU_CODENAME}_${KASM_VER_NAME_PART}_arm64.deb"
     else
-        BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_${UBUNTU_CODENAME}_${KASM_VER_NAME_PART}_amd64.deb"
+        BUILD_URL="https://kasmweb-build-artifacts.s3.amazonaws.com/kasmvnc/${COMMIT_ID}/kasmvncserver_ubuntu_${UBUNTU_CODENAME}_${KASM_VER_NAME_PART}_amd64.deb"
     fi
 fi
 

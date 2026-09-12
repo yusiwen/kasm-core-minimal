@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 set -ex
 
-COMMIT_ID="35f2831bf51b218de58f890cd16a8382c54b2215"
-BRANCH="develop"
+COMMIT_ID="${UPLOAD_SERVER_COMMIT_ID:-35f2831bf51b218de58f890cd16a8382c54b2215}"
+BRANCH="${UPLOAD_SERVER_BRANCH:-develop}"
 COMMIT_ID_SHORT=$(echo "${COMMIT_ID}" | cut -c1-6)
 
 ARCH=$(arch | sed 's/aarch64/arm64/g' | sed 's/x86_64/amd64/g')

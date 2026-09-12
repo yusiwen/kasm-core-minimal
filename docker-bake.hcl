@@ -58,3 +58,37 @@ target "kasm-core-minimal_trixie-systemd" {
   no-cache = true
   platforms = ["linux/amd64", "linux/arm64"]
 }
+
+target "kasm-core-minimal_trixie-1_5_1" {
+  context = "."
+  dockerfile = "Dockerfile"
+  tags = ["yusiwen/kasm-core-minimal:1.5.1-trixie"]
+  args = {
+    KASMVNC_COMMIT_ID = "582662953c819ade9ed4b620a5646546d8d7de7b"
+    KASMVNC_BRANCH = "release"
+    KASMVNC_VER = "1.5.1"
+    PROFILE_SYNC_V2_COMMIT_ID = "506ba7a13d810b214fe76cb91e94abc7c559d8d7"
+    PROFILE_SYNC_V2_BRANCH = "release_2.1.1"
+    BASE_IMAGE = "debian:trixie-slim"
+    DISTRO = "debian"
+  }
+  no-cache = true
+  platforms = ["linux/amd64", "linux/arm64"]
+}
+
+target "kasm-core-minimal_trixie-systemd-1_5_1" {
+  context = "."
+  dockerfile = "Dockerfile.systemd"
+  tags = ["yusiwen/kasm-core-minimal:1.5.1-trixie-systemd"]
+  args = {
+    KASMVNC_COMMIT_ID = "582662953c819ade9ed4b620a5646546d8d7de7b"
+    KASMVNC_BRANCH = "release"
+    KASMVNC_VER = "1.5.1"
+    PROFILE_SYNC_V2_COMMIT_ID = "506ba7a13d810b214fe76cb91e94abc7c559d8d7"
+    PROFILE_SYNC_V2_BRANCH = "release_2.1.1"
+    BASE_IMAGE = "debian:trixie-slim"
+    DISTRO = "debian"
+  }
+  no-cache = true
+  platforms = ["linux/amd64", "linux/arm64"]
+}

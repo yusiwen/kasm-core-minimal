@@ -100,12 +100,12 @@ convert_local_distro_to_profile_sync_distro
 check_distro_is_supported
 
 # profile-sync-v1
-BRANCH="release_1.1.1"
-COMMIT_ID="bdda739846603351abce617cd3c3ebaacdd44ff8"
+BRANCH="${PROFILE_SYNC_V1_BRANCH:-release_1.1.1}"
+COMMIT_ID="${PROFILE_SYNC_V1_COMMIT_ID:-bdda739846603351abce617cd3c3ebaacdd44ff8}"
 download_and_symlink
 
 # profile-sync-v2
-BRANCH="release_2.1.0"
-COMMIT_ID="cb3d9c65ab9e0b3160cafa65375bfebbec7f199a"
+BRANCH="${PROFILE_SYNC_V2_BRANCH:-release_2.1.0}"
+COMMIT_ID="${PROFILE_SYNC_V2_COMMIT_ID:-cb3d9c65ab9e0b3160cafa65375bfebbec7f199a}"
 install_v2_dependencies
 download_and_symlink_v2
